@@ -9,7 +9,7 @@ urlpatterns = [
     path('', views.post_list, name='post_list'),
 
     # post detail
-    path('<int:year>/<int:month>/<int:day>/<slug:post>/',
+    path('<int:year>/<int:month>/<int:day>/<slug:slug>/',
         views.post_detail,
         name='post_detail'),
 ]
