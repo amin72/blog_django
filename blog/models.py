@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from taggit.managers import TaggableManager
 
 
 User = get_user_model()
@@ -32,6 +33,7 @@ class Post(models.Model):
     status = models.CharField(max_length=10,
         choices=STATUS_CHOICES,
         default='draft')
+    tags = TaggableManager()
 
     # managers
     objects = models.Manager() # default manager
