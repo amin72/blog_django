@@ -4,7 +4,7 @@ from django.views.generic import ListView
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.db.models import Count
-from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+from django.contrib.postgres.search import SearchVector, TrigramSimilarity
 from taggit.models import Tag
 from .models import Post, Comment
 from .forms import EmailPostForm, CommentForm, SearchForm
@@ -105,23 +105,15 @@ def post_search(request):
     query = None
     results = []
 
-    # q is search query
+    # search query
     if 'query' in request.GET:
         form = SearchForm(request.GET)
         if form.is_valid():
             query = form.cleaned_data['query']
 
-            search_vector = SearchVector('title', weight='A') \
-                + SearchVector('body', weight='B')
-            search_query = SearchQuery(query)
-
             results = Post.objects.annotate(
-                search=search_query,
-                rank=SearchRank(search_vector, search_query)
-            ).filter(rank__gte=0.3).order_by('-rank')
-
-            for a in results:
-                print(a.rank)
+                similarity=TrigramSimilarity('title', query)
+            ).filter(similarity__gt=0.3).order_by('-similarity')
 
     context = {'form': form, 'query': query, 'results': results}
     return render(request, 'blog/post/search.html', context)
